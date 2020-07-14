@@ -6,19 +6,18 @@
 anacl
 Optimize your acl of network device
 Author: cahi1l1yn
-Version:Beta0.1
+Version:v0.3Beta
 --------------------------------------------------
 '''
 
-#冗余策略，冲突策略，可合并策略，被覆盖策略，过期策略，宽松策略，危险策略
 
 
 import os
 import re
 
 dport = ['135','139','445','21','23','67','68','69','3389','1433','1521','3306','telnet','ftp','mysql','oracle','sqlserver']
-path = r'C:\Users\Administrator\Desktop\test\\'
-output = r'C:\Users\Administrator\Desktop\output\\'
+path = r'/Users/cahi1i1yn/workfile/git/test/'
+output = r'/Users/cahi1i1yn/workfile/git/'
 
 def pretreat(i):
     global alist
@@ -28,6 +27,12 @@ def pretreat(i):
     t = txt[s:].find('#')+s
     alist = txt[f:t].split('#')
     return alist
+
+def dempty(d):
+	for key in list(d.keys()):
+	    if not d.get(key):
+	    	del d[key]
+	return d
 
 def parse(acl,aname):
     global l
@@ -48,18 +53,33 @@ def parse(acl,aname):
             d = {'Rule':'','Action':'','Proto':'','Source':'','Desti':'','Port':''}
             try:
                 d['Rule']=re.search('rule\s\d+',i).group().lstrip('rule ')
-                d['Action']=re.search('deny|permit',i).group()
-                d['Proto']=re.search('tcp|udp',i).group()
-                d['Source']=re.search('source\s\d+.\d+.\d+.\d+',i).group().lstrip('source ')
-                d['Desti']=re.search('destination\s\d+.\d+.\d+.\d+',i).group().lstrip('destination ')
-                d['Port']=re.search('eq\s\w+|eq\s\d+',i).group().lstrip('eq ')
-                pass
             except AttributeError:
                 pass
+            try:
+                d['Action']=re.search('deny|permit',i).group()
+            except AttributeError:
+                pass
+            try:
+                d['Proto']=re.search('tcp|udp|icmp|ip',i).group()
+            except AttributeError:
+                pass
+            try:
+                d['Source']=re.search('source\s\d+.\d+.\d+.\d+',i).group().lstrip('source ')
+            except AttributeError:
+                pass
+            try: 
+                d['Desti']=re.search('destination\s\d+.\d+.\d+.\d+',i).group().lstrip('destination ')
+            except AttributeError:
+                pass
+            try:               
+                d['Port']=re.search('eq\s\w+|eq\s\d+',i).group().lstrip('eq ')
+            except AttributeError:
+                pass
+ #           dempty(d)
             l.append(d)
             pass
     if dn == '0':
-        info = '未发现默认拒绝策略！！！'
+        info = '[未发现默认拒绝策略！！！]'
         print('[WARNNIGN]' + info)
         log.write(info +'\n')        
     return l
@@ -85,31 +105,49 @@ def danger(k):
 def repeated(k,j):
     if k['Rule'] != j['Rule']:
         if k['Action'] == j['Action']:
-            if k['Proto'] == j['Proto'] and k['Source'] == j['Source'] and k['Desti'] == j['Desti'] and k['Port'] == j['Port']:
-                info = '[存在冗余策略]动作、源和目标地址、端口重复：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
-            if re.search('\d+.\d+.\d+',k['Source']).group() == re.search('\d+.\d+.\d+',j['Source']).group() and re.search('\d+.\d+.\d+\.0',k['Source']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
-                info = '[存在覆盖策略]源地址被覆盖：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
-            if re.search('\d+.\d+.\d+',k['Desti']).group() == re.search('\d+.\d+.\d+',j['Desti']).group() and re.search('\d+.\d+.\d+\.0',k['Desti']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
-                info = '[存在覆盖策略]目标地址被覆盖：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
+        	try:
+        		if k['Proto'] == j['Proto'] and k['Source'] == j['Source'] and k['Desti'] == j['Desti'] and k['Port'] == j['Port']:
+        			info = '[存在冗余策略]动作、源和目标地址、端口重复：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
+        	try:
+        		if re.search('\d+.\d+.\d+',k['Source']).group() == re.search('\d+.\d+.\d+',j['Source']).group() and re.search('\d+.\d+.\d+\.0',k['Source']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
+        			info = '[存在覆盖策略]源地址被覆盖：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
+        	try: 
+        		if re.search('\d+.\d+.\d+',k['Desti']).group() == re.search('\d+.\d+.\d+',j['Desti']).group() and re.search('\d+.\d+.\d+\.0',k['Desti']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
+        			info = '[存在覆盖策略]目标地址被覆盖：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
         if k['Action'] != j['Action']:
-            if k['Proto'] == j['Proto'] and k['Source'] == j['Source'] and k['Desti'] == j['Desti'] and k['Port'] == j['Port']:
-                info = '[存在冲突策略]相同地址和端口同时存在允许和禁止策略：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
-            if re.search('\d+.\d+.\d+',k['Source']).group() == re.search('\d+.\d+.\d+',j['Source']).group() and re.search('\d+.\d+.\d+\.0',k['Source']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
-                info = '[存在冲突策略]源地址被冲突：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
-            if re.search('\d+.\d+.\d+',k['Desti']).group() == re.search('\d+.\d+.\d+',j['Desti']).group() and re.search('\d+.\d+.\d+\.0',k['Desti']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
-                info = '[存在冲突策略]目标地址被冲突：'+ str(k) + '||' + str (j)
-                print(info)
-                log.write(info+'\n')
+        	try:
+        		if k['Proto'] == j['Proto'] and k['Source'] == j['Source'] and k['Desti'] == j['Desti'] and k['Port'] == j['Port']:
+        			info = '[存在冲突策略]相同地址和端口同时存在允许和禁止策略：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
+        	try:
+        		if re.search('\d+.\d+.\d+',k['Source']).group() == re.search('\d+.\d+.\d+',j['Source']).group() and re.search('\d+.\d+.\d+\.0',k['Source']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
+        			info = '[存在冲突策略]源地址被冲突：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
+        	try:
+        		if re.search('\d+.\d+.\d+',k['Desti']).group() == re.search('\d+.\d+.\d+',j['Desti']).group() and re.search('\d+.\d+.\d+\.0',k['Desti']) and k['Port'] == j['Port'] and k['Proto'] == j['Proto']:
+        			info = '[存在冲突策略]目标地址被冲突：'+ str(k) + '||' + str (j)
+        			print(info)
+        			log.write(info+'\n')
+        	except AttributeError:
+        		pass
 
 def main(path):
     global aname
@@ -121,16 +159,24 @@ def main(path):
         while n < len(alist):
             acl = alist[n].split('\n')
             acl = [x.strip() for x in acl if x.strip() != '']
-            aname = re.search('\w+$|\d+$',acl[0]).group()
-            print('[INFO]ACL found:'+aname)
-            log = open(output+i,'a')
-            log.write(aname+'\n')
-            parse(acl,aname)
-            for k in l:
-   #            danger(k)
-                for j in l:
-                    repeated(k,j)
+            print acl
+            try:
+                aname = re.search('\w+$|\d+$',acl[0]).group()
+                info = '[INFO]ACL found:'+aname
+                print(info)
+                log = open(output+i+'.txt','a')
+                log.write(info+'\n')
+                parse(acl,aname)
+                del l[0]
+                print(l)
+                for k in l:
+                    danger(k)
+                    for j in l:
+                        repeated(k,j)
+            except IndexError:
+                pass
             n += 1
-
+            print('---------------------')
+    print('Finished........!')
 if __name__ == '__main__':
     main(path)
