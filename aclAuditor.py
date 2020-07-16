@@ -166,7 +166,7 @@ def ruleB(i,o):
                 and re.search('destination\s\d+.\d+.\d+.',i).group() == re.search('destination\s\d+.\d+.\d+.',o).group() \
                 and re.search('destination\s\d+.\d+.\d+.0|destination\s\d+.\d+.0.0',i) \
                 and re.search('eq\s\d+|range\s\d+\s\d+',i).group() == re.search('eq\s\d+|range\s\d+\s\d+',o).group():
-                    info = '[存在覆盖规则]目的地址被覆盖：'+ i + '<||>' + o
+                    info = '[存在冲突规则]目的地址被覆盖：'+ i + '<||>' + o
                     print(info)
                     log.write(info+'\n')
                     c += 1
@@ -181,6 +181,9 @@ def main(path):
         pretreat(i)
         n = 0
         log = open(output+i+'.txt','a')
+        f = i 
+        an = str(alist).count('acl')
+        cn = 0
         while n < len(alist):
             acl = alist[n].split('\n')
             acl = [x.strip() for x in acl if x.strip() != '']
@@ -208,13 +211,17 @@ def main(path):
                     info = '[未发现默认拒绝规则]'
                     log.write(info +'\n')
                     print(info)
-                line = '\n------------------------------------------------\n||||||||||||||||||||||||||||||||||||||||||||||||'   
+                line = '\n------------------------------------------------\n------------------------------------------------'   
                 info ='----------\n['+aname+']共发现安全隐患:'+str(c)+'项'+ line
                 print(info)
                 log.write(info +'\n')
             except IndexError:
                 pass
+            cn += c
             n += 1
+        info = '配置文件['+f+']'+'审计结束\nACL总数为['+str(an)+']\n安全隐患总数为['+str(cn)+']'
+        print(info)
+        log.write(info +'\n')
     print('------------------------------------------------\n====================Finished====================')
 
     
