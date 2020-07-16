@@ -166,7 +166,7 @@ def ruleB(i,o):
                 and re.search('destination\s\d+.\d+.\d+.',i).group() == re.search('destination\s\d+.\d+.\d+.',o).group() \
                 and re.search('destination\s\d+.\d+.\d+.0|destination\s\d+.\d+.0.0',i) \
                 and re.search('eq\s\d+|range\s\d+\s\d+',i).group() == re.search('eq\s\d+|range\s\d+\s\d+',o).group():
-                    info = '[存在冲突规则]目的地址被覆盖：'+ i + '<||>' + o
+                    info = '[存在覆盖规则]目的地址被覆盖：'+ i + '<||>' + o
                     print(info)
                     log.write(info+'\n')
                     c += 1
