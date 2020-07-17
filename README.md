@@ -13,30 +13,3 @@
 格式示例：  
 rule 10 deny tcp source 172.19.8.0 0.0.0.255 destination 172.19.7.0 0.0.0.255 destination-port eq 22     
 
-执行效果    
-------------------------------------------------
-[ACL]:3999
-[规则数量]:6
-----------
-[存在宽松规则]目的地址范围过大：rule 20 permit tcp source 172.19.66.1 0.0.0.255 destination 172.19.7.0 0.0.0.255 destination-port eq 22
-[存在覆盖规则]目的地址被覆盖：rule 20 permit tcp source 172.19.66.1 0.0.0.255 destination 172.19.7.0 0.0.0.255 destination-port eq 22<||>rule 5 permit tcp source 172.19.66.1 0.0.0.255 destination 172.19.7.1 0.0.0.255 destination-port eq 22
-[存在宽松规则]源地址范围过大：rule 40 permit tcp source 172.19.66.0 0.0.0.255 destination 172.19.7.4 0.0.0.255 destination-port eq 22
-----------
-[3999]共发现安全隐患:3项
-------------------------------------------------
-------------------------------------------------
-[ACL]:4000
-[规则数量]:6
-----------
-[存在危险规则]开放了危险端口：rule 0 permit tcp source 172.19.66.155 0.0.0.255 destination 172.19.7.1 0.0.0.255 destination-port eq 3389
-[存在冲突规则]源地址冲突：rule 30 deny tcp source 172.19.66.0 0.0.0.255 destination 172.19.7.3 0.0.0.255 destination-port eq 22<||>rule 20 permit tcp source 172.19.66.1 0.0.0.255 destination 172.19.7.3 0.0.0.255 destination-port eq 22
-[存在宽松规则]开放了Any地址：rule 40 permit any
-[未发现默认拒绝规则]
-----------
-[4000]共发现安全隐患:3项
-------------------------------------------------
-配置文件[test]审计结束
-ACL总数为[2]
-安全隐患总数为[6]
-------------------------------------------------
-====================Finished====================
