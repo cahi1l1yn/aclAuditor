@@ -14,4 +14,4 @@
 rule 10 deny tcp source 172.19.8.0 0.0.0.255 destination 172.19.7.0 0.0.0.255 destination-port eq 22     
 
 #执行截图
-- ![example.bmp](example.bmp)
+- ![example.gif](example.gif)
