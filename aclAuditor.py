@@ -16,8 +16,8 @@ import os
 import re
 
 dport = ['135','139','445','21','23','67','68','69','3389','1433','1521','3306','telnet','ftp','mysql','oracle','sqlserver']
-path = r'/Users/cahi1i1yn/workfile/git/test/'
-output = r'/Users/cahi1i1yn/workfile/git/'
+path = r''
+output = r''
 
 def pretreat(i):
     global alist
@@ -166,7 +166,7 @@ def ruleB(i,o):
                 and re.search('destination\s\d+.\d+.\d+.',i).group() == re.search('destination\s\d+.\d+.\d+.',o).group() \
                 and re.search('destination\s\d+.\d+.\d+.0|destination\s\d+.\d+.0.0',i) \
                 and re.search('eq\s\d+|range\s\d+\s\d+',i).group() == re.search('eq\s\d+|range\s\d+\s\d+',o).group():
-                    info = '[存在冲突规则]目的地址被覆盖：'+ i + '<||>' + o
+                    info = '[存在覆盖规则]目的地址被覆盖：'+ i + '<||>' + o
                     print(info)
                     log.write(info+'\n')
                     c += 1
